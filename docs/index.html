@@ -2,52 +2,263 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>AMS-2 — Prior Authorization AI System</title>
+  <title>Prior Authorization — Multi-Agent AI Pipeline</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta name="description" content="Prior Authorization Multi-Agent AI Pipeline — Architecture, State Laws, Payer Policies">
+  <meta name="description" content="Complete architecture guide for the AMS Prior Authorization Multi-Agent AI Pipeline — AWS services, agent design, cost breakdown, and HIPAA compliance.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
   <style>
     :root {
-      --primary-color: #2563eb;
-      --border-radius: 6px;
+      --theme-color: #1d4ed8;
+      --sidebar-width: 280px;
     }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+
+    /* ── Top nav bar ── */
+    .app-nav {
+      background: #1e293b;
+      padding: 0 2rem;
     }
+    .app-nav a {
+      color: #94a3b8 !important;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.4rem 0.75rem;
+      border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .app-nav a:hover {
+      color: #fff !important;
+      background: rgba(255,255,255,0.08);
+      text-decoration: none !important;
+    }
+    .app-nav > ul > li > ul {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      min-width: 180px;
+    }
+    .app-nav > ul > li > ul a {
+      color: #94a3b8 !important;
+    }
+
+    /* ── Sidebar ── */
     .sidebar {
-      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+      background: #f8fafc;
+      border-right: 1px solid #e2e8f0;
+    }
+    .sidebar .app-name-link {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #1e293b !important;
+    }
+    .sidebar ul li a {
+      color: #475569;
+      font-size: 0.88rem;
+    }
+    .sidebar ul li a:hover,
+    .sidebar ul li a.active {
+      color: #1d4ed8 !important;
+      font-weight: 600;
+    }
+    .sidebar-nav > ul > li > a {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8 !important;
+      cursor: default;
+    }
+
+    /* ── Content ── */
+    .content {
+      padding-top: 1.5rem;
+    }
+    .markdown-section {
+      max-width: 900px;
+      padding: 2rem 3rem;
+    }
+    .markdown-section h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #0f172a;
+      border-bottom: 3px solid #1d4ed8;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .markdown-section h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 2.5rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .markdown-section h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #334155;
+      margin-top: 1.75rem;
+    }
+
+    /* ── Tables ── */
+    .markdown-section table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.875rem;
+      margin: 1.25rem 0;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .markdown-section th {
+      background: #1e293b;
+      color: #f1f5f9;
+      font-weight: 600;
+      padding: 0.65rem 1rem;
+      text-align: left;
+    }
+    .markdown-section td {
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid #f1f5f9;
+      color: #374151;
+      vertical-align: top;
+    }
+    .markdown-section tr:last-child td { border-bottom: none; }
+    .markdown-section tr:nth-child(even) td { background: #f8fafc; }
+    .markdown-section tr:hover td { background: #eff6ff; }
+
+    /* ── Code blocks ── */
+    .markdown-section pre {
+      background: #0f172a !important;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      border-left: 4px solid #1d4ed8;
+      margin: 1.25rem 0;
+    }
+    .markdown-section code {
+      background: #eff6ff;
+      color: #1d4ed8;
+      padding: 0.15em 0.4em;
+      border-radius: 3px;
+      font-size: 0.88em;
+    }
+    .markdown-section pre code {
+      background: transparent;
+      color: #e2e8f0;
+      padding: 0;
+    }
+
+    /* ── Blockquotes / callouts ── */
+    .markdown-section blockquote {
+      background: #eff6ff;
+      border-left: 4px solid #1d4ed8;
+      border-radius: 0 6px 6px 0;
+      padding: 0.85rem 1.25rem;
+      margin: 1.25rem 0;
+      color: #1e293b;
+    }
+    .markdown-section blockquote p { margin: 0; }
+
+    /* ── Horizontal rules ── */
+    .markdown-section hr {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 2rem 0;
+    }
+
+    /* ── Search ── */
+    .search input {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+
+    /* ── Cover page ── */
+    section.cover {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1d4ed8 100%) !important;
+    }
+    section.cover .cover-main h1 {
+      color: #fff;
+      font-size: 2.8rem;
+      font-weight: 800;
+    }
+    section.cover .cover-main p {
+      color: #94a3b8;
+      font-size: 1.1rem;
+    }
+    section.cover .cover-main a.anchor {
+      background: #1d4ed8;
+      color: #fff;
+      border-color: #1d4ed8;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    section.cover .cover-main a.anchor:hover {
+      background: #2563eb;
+    }
+
+    /* ── Progress bar ── */
+    #nprogress .bar { background: #1d4ed8 !important; }
+
+    @media (max-width: 768px) {
+      .markdown-section { padding: 1.25rem 1.25rem; }
     }
   </style>
 </head>
 <body>
-  <div id="app">Loading...</div>
+  <div id="app">Loading…</div>
   <script>
     window.$docsify = {
-      name: 'AMS-2 PA System',
+      name: '🏥 PA Pipeline',
+      nameLink: '/',
       repo: 'https://github.com/ujjwaltinkerdev/AMS-2',
       loadSidebar: true,
-      loadNavbar: false,
-      coverpage: false,
+      loadNavbar: true,
+      coverpage: true,
+      onlyCover: false,
       auto2top: true,
       subMaxLevel: 3,
-      search: 'auto',
+      search: {
+        maxAge: 86400000,
+        paths: 'auto',
+        placeholder: 'Search docs…',
+        noData: 'No results.',
+        depth: 4
+      },
       formatUpdated: '{MM}/{DD}/{YYYY}',
-      themeColor: '#2563eb',
-      plugins: [
-        function(hook) {
-          hook.beforeEach(function(html) {
-            return html;
-          });
-        }
-      ]
+      themeColor: '#1d4ed8',
+      routerMode: 'hash',
+      notFoundPage: false,
+      copyCode: {
+        buttonText: 'Copy',
+        errorText:  'Error',
+        successText: 'Copied!'
+      },
+      pagination: {
+        previousText: '← Previous',
+        nextText: 'Next →',
+        crossChapter: true,
+        crossChapterText: true,
+      },
     }
   </script>
+
+  <!-- Core -->
   <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+
+  <!-- Plugins -->
   <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/zoom-image.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
+
+  <!-- Syntax highlighting -->
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-yaml.min.js"></script>
 </body>
 </html>
